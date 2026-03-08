@@ -400,8 +400,9 @@ bool ElevatorCar::CreateCar(int floor)
 		Offset = floor - parent->GetCar(Number - 1)->StartingFloor;
 
 		//make sure starting floor is above previous car
-		if (StartingFloor < parent->GetCar(Number - 1)->StartingFloor)
-			return ReportError("Car " + ToString(Number) + " must be above car " + ToString(Number - 1));
+		//if (StartingFloor < parent->GetCar(Number - 1)->StartingFloor)
+			//return ReportError("Car " + ToString(Number) + " must be above car " + ToString(Number - 1));
+		//Unhinged Patch: Ignore the requirement of above the previous car
 	}
 
 	//check if starting floor is valid
@@ -566,8 +567,8 @@ bool ElevatorCar::AddServicedFloor(int number, bool create_shaft_door)
 	if (IsServicedFloor(number) == false)
 	{
 		//only add floor if not serviced by another car
-		if (parent->IsServicedFloor(number) == false)
-		{
+		//if (parent->IsServicedFloor(number) == false)
+		//{
 			ServicedFloors.emplace_back(number);
 			std::sort(ServicedFloors.begin(), ServicedFloors.end());
 
@@ -579,9 +580,10 @@ bool ElevatorCar::AddServicedFloor(int number, bool create_shaft_door)
 					DoorArray[i]->AddServicedFloor(number);
 				}
 			}
-		}
-		else
-			return ReportError("AddServicedFloor: Floor " + ToString(number) + " already serviced");
+		//}
+		//else
+			//return ReportError("AddServicedFloor: Floor " + ToString(number) + " already serviced");
+		//Unhinged Patch: Allow 2 (or more) cars to serve same floor
 	}
 
 	return true;
