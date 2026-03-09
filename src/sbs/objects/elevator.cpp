@@ -3809,6 +3809,7 @@ void Elevator::RemoveCar(ElevatorCar* car)
 ElevatorCar* Elevator::GetCarForFloor(int number, bool report_on_failure)
 {
 	//return car that services specified floor
+	//Unhinged Notes: This will only detect lowest index lift, for closest lift use different function
 
 	for (size_t i = 0; i < Cars.size(); i++)
 	{
@@ -3816,6 +3817,46 @@ ElevatorCar* Elevator::GetCarForFloor(int number, bool report_on_failure)
 			return Cars[i];
 	}
 
+	return 0;
+}
+
+ElevatorCar* Elevator::GetNearestCarForFloor(int number, bool report_on_failure)
+{
+	//Unhinged Patch: return nearest car that services specified floor
+	int carindex = 0;
+	Real nearestdist = 1e308l;
+	Real targetheight = GetDestinationAltitude(number);
+
+	for (size_t i = 0; i < Cars.size(); i++)
+	{
+		if (Cars[i]->IsServicedFloor(number, report_on_failure) == true){
+			if ((ActiveDirection == 1) && (!BeyondDecelMarker(ActiveDirection,targetheight+Cars[i]->GetPosition().y)) && ((targetheight-Cars[i]->GetPosition().y) < nearestdist)) {
+				carindex = i;
+				nearestdist = targetheight-Cars[i]->GetPosition().y;
+			} else if ((ActiveDirection == -1) && (!BeyondDecelMarker(ActiveDirection,targetheight+Cars[i]->GetPosition().y)) && ((Cars[i]->GetPosition().y-targetheight) < nearestdist)) {
+				carindex = i;
+				nearestdist = Cars[i]->GetPosition().y-targetheight;
+			}
+		}
+	}
+	if (carindex != 0) {
+		return Cars[carindex];
+	}
+	for (size_t i = 0; i < Cars.size(); i++)
+	{
+		if (Cars[i]->IsServicedFloor(number, report_on_failure) == true){
+			if ((targetheight-Cars[i]->GetPosition().y > 0) && ((targetheight-Cars[i]->GetPosition().y) < nearestdist)) {
+				carindex = i;
+				nearestdist = targetheight-Cars[i]->GetPosition().y;
+			} else if ((Cars[i]->GetPosition().y-targetheight > 0) && ((Cars[i]->GetPosition().y-targetheight) < nearestdist)) {
+				carindex = i;
+				nearestdist = Cars[i]->GetPosition().y-targetheight;
+			}
+		}
+	}
+	if (carindex != 0) {
+		return Cars[carindex];
+	}
 	return 0;
 }
 
