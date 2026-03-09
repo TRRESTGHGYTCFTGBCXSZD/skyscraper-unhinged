@@ -288,7 +288,7 @@ bool Action::Run(Object *caller, Object *parent, bool &hold)
 		if (IsNumeric(command_name) == true)
 		{
 			int floor = ToInt(command_name);
-			return elevator->SelectFloor(floor);
+			return elevator->SelectFloor(floor,car->Number);
 		}
 
 		//get first call station on recall floor

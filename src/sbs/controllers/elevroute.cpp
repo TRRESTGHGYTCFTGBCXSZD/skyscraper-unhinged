@@ -58,6 +58,11 @@ RouteController::~RouteController()
 
 bool RouteController::AddRoute(int floor, int direction, int call_type)
 {
+	return AddRoute(int floor, int direction, int call_type, 0)
+}
+	// Unhinged patch: Add what car to serve
+bool RouteController::AddRoute(int floor, int direction, int call_type, int car_number)
+{
 	//Add call route to elevator routing table, in sorted order
 	//directions are either 1 for up, or -1 for down
 	//call type is 0 for a car call, 1 for a hall call, 2 for a system call
@@ -93,11 +98,19 @@ bool RouteController::AddRoute(int floor, int direction, int call_type)
 			return ReportError("cannot add route in opposite direction of queue search");
 	}
 
-	//get related car number
-	ElevatorCar *car = elevator->GetCarForFloor(floor);
-
-	if (!car)
-		return ReportError("floor " + ToString(floor) + " is not a serviced floor");
+	ElevatorCar *car;
+	if (carnumber == 0) {
+		//get related car number
+		car = elevator->GetNearestCarForFloor(floor);
+		if (!car)
+			return ReportError("floor " + ToString(floor) + " is not a serviced floor");
+	} else {
+		car = elevator->GetCar(car_number)
+		if (!car)
+			return ReportError("invalid car " + ToString(car_number));
+		if ((!car) || !(car->IsServicedFloor(floor)))
+			return ReportError("floor " + ToString(floor) + " is not a serviced floor for car " + ToString(car_number));
+	}
 
 	//if car is on the same floor, perform an arrival
 	if (car->IsOnFloor(floor))
@@ -451,7 +464,7 @@ void RouteController::ProcessCallQueue()
 		//search through up queue
 		for (size_t i = 0; i < UpQueue.size(); i++)
 		{
-			ElevatorCar *car = elevator->GetCarForFloor(UpQueue[i].floor);
+			ElevatorCar *car = elevator->GetNearestCarForFloor(UpQueue[i].floor);
 			if (!car)
 				return;
 
@@ -546,7 +559,7 @@ void RouteController::ProcessCallQueue()
 		//search through down queue (search order is reversed since calls need to be processed in descending order)
 		for (size_t i = DownQueue.size() - 1; i < DownQueue.size(); --i)
 		{
-			ElevatorCar *car = elevator->GetCarForFloor(DownQueue[i].floor);
+			ElevatorCar *car = elevator->GetNearestCarForFloor(DownQueue[i].floor);
 			if (!car)
 				return;
 

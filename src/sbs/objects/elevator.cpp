@@ -3160,6 +3160,11 @@ ElevatorStatus Elevator::AvailableForCall(bool destination, int floor, int direc
 
 bool Elevator::SelectFloor(int floor)
 {
+	// Unhinged Patch: Multiple Cars Support
+	return Elevator::SelectFloor(floor, 0)
+}
+bool Elevator::SelectFloor(int floor, int car_number)
+{
 	//select a floor (in-elevator floor selections)
 
 	//only run if power is enabled
@@ -3177,10 +3182,18 @@ bool Elevator::SelectFloor(int floor)
 	//use Go routine instead if floorhold parameter is enabled
 	if (FloorHold == true)
 		return Go(floor, true);
-
-	ElevatorCar *car = GetCarForFloor(floor);
-	if (!car)
-		return ReportError("Floor " + ToString(floor) + " not a serviced floor");
+	ElevatorCar *car;
+	if (!car_number) {
+		car = GetNearestCarForFloor(floor);
+		if (!car)
+			return ReportError("Floor " + ToString(floor) + " not a serviced floor");
+	} else {
+		car = GetCar(car_number);
+		if (!car)
+			return ReportError("invalid car " + ToString(car_number));
+		if (!car->IsServicedFloor(floor))
+			return ReportError("Floor " + ToString(floor) + " not a serviced floor for car " + ToString(car_number));
+	}
 
 	//SelectFloor won't work if Destination Dispatch is enabled, if set
 	if (Controllers.size() > 0)
