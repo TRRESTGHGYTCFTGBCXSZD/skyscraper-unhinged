@@ -108,7 +108,7 @@ bool RouteController::AddRoute(int floor, int direction, int call_type, int car_
 		car = elevator->GetCar(car_number)
 		if (!car)
 			return ReportError("invalid car " + ToString(car_number));
-		if ((!car) || !(car->IsServicedFloor(floor)))
+		if (!car->IsServicedFloor(floor))
 			return ReportError("floor " + ToString(floor) + " is not a serviced floor for car " + ToString(car_number));
 	}
 
