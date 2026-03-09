@@ -1084,7 +1084,11 @@
         floor's altitude.</p>
       <p align="left"><strong>12. CallButtonElevators</strong> - list of
         elevators the next created call button set will work with (this
-        must be specified before CreateCallButtons)<br>
+        must be specified before CreateCallButtons) In this version,
+        You can add colon in order to call specific car on elevator.
+        If unspecified, it will call nearest car available on that floor.
+        We are working on that, as this is currently unimplemented and
+        causes error.<br>
         Example: <font face="Courier New, Courier, mono" size="2">CallButtonElevators
 
 
@@ -1134,6 +1138,8 @@
           = 1, 2, 3, 4<br>
         </font> Example: <font face="Courier New, Courier, mono"
           size="2">CallButtonElevators = 1 - 4</font><br>
+         Example: <font face="Courier New, Courier, mono"
+          size="2">CallButtonElevators = 1:2, 2:1</font><br>
       </p>
       <p align="left"><strong>13. CreateCallButtons</strong> - creates a
         call button set<br>
